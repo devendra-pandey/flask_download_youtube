@@ -1,9 +1,8 @@
-from flask import Flask , render_template , request
+from flask import Flask , render_template , request,jsonify
 import youtube_dl
 
 
 app = Flask(__name__)
-
 
 
 ydl_opts = {}
@@ -29,17 +28,22 @@ def result():
             print("chevk" , video_download)
             return render_template('result.html')
 
-        
-            
 
 
+from pytube import YouTube
 
+@app.route('/download', methods=['POST'])
+def download():
+    if request.method == 'POST':
+        link = request.json.get('link')
 
-    
-
-
-
-
+        try:
+            youtube_object = YouTube(link)
+            youtube_object = youtube_object.streams.get_highest_resolution()
+            youtube_object.download()
+            return jsonify({'message': 'Download completed successfully'})
+        except:
+            return jsonify({'message': 'An error occurred during download'})
 
 
 if __name__ == '__main__':
